@@ -17,7 +17,7 @@ export class AuthService {
     ) { }
 
     async register(data: RegisterDto) {
-        const { name, email, password } = data
+        const { name, email, password, imageUrl, imagePublicId } = data
 
         const existingUser =
             await this.prisma.user.findUnique({
@@ -34,13 +34,16 @@ export class AuthService {
             data: {
                 name,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                imageUrl,
+                imagePublicId,
             },
             select: {
                 id: true,
                 name: true,
                 email: true,
                 role: true,
+                imageUrl : true,
                 createdAt: true,
             }
         })
@@ -61,7 +64,8 @@ export class AuthService {
                 id: user?.id,
                 name: user?.name,
                 email: user?.email,
-                role: user?.role
+                role: user?.role,
+                imageUrl : user?.imageUrl
             }
         }
     }

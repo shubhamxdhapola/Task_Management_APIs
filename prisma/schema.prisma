@@ -31,6 +31,8 @@ model User {
   role UserRole @default(USER)
   password String 
   tasks Task[]
+  imageUrl String?
+  imagePublicId String?
   createdAt DateTime @default(now())
 }
 
