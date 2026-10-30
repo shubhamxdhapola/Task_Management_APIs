@@ -9,7 +9,7 @@ import { TasksModule } from './tasks/tasks.module.js';
 import { LoggerMiddleware } from './common/middlewares/logger/logger.middleware.js';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UserRegisterListenerService } from './events/user-register-listener/user-register-listener.service.js';
-import { CloudinaryModule } from './cloudinary/cloudinary.module.js';
+
 
 @Module({
   imports: [
@@ -19,7 +19,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module.js';
     AuthModule,
     AdminModule,
     TasksModule,
-    CloudinaryModule
   ],
   providers: [UserRegisterListenerService],
 })
