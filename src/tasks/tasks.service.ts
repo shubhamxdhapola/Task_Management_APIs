@@ -1,14 +1,17 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task-dto/create-task-dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { UpdateTaskDto } from './dto/update-task-dto/update-task-dto.js';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { type Cache } from 'cache-manager';
 
 @Injectable()
 export class TasksService {
 
-    constructor(private readonly prisma: PrismaService) { }
-    
-    private readonly logger = new Logger(TasksService.name);
+    constructor(
+        @Inject(CACHE_MANAGER)
+        private readonly cacheManager: Cache,
+        private readonly prisma: PrismaService) { }
 
     async create(data: CreateTaskDto, id: string) {
         const { taskName } = data
@@ -25,6 +28,7 @@ export class TasksService {
                 userId: true
             }
         })
+        await this.cacheManager.del('tasks:all')
 
         return {
             message: "Task created",

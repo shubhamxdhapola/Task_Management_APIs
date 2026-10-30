@@ -1,6 +1,4 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module.js';
@@ -10,9 +8,13 @@ import { LoggerMiddleware } from './common/middlewares/logger/logger.middleware.
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UserRegisterListenerService } from './events/user-register-listener/user-register-listener.service.js'
 import { UploadsModule } from './uploads/uploads.module.js';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
+    CacheModule.register({
+      isGlobal: true
+    }),
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
