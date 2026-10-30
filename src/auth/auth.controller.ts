@@ -1,11 +1,13 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { RegisterDto } from './dto/register-dto/register-dto.js';
 import { LoginDto } from './dto/login-dto/login-dto.js';
 import { AuthenticateGuard, type AuthenticatedRequest } from './guards/authenticate/authenticate.guard.js';
 import type { Response } from 'express'
 import { cookie_options } from '../libs/cookie.options.js';
-import { ApiCookieAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOperation } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { cloudinaryStorage } from '../libs/cloudinary.storage.js';
 
 @Controller('/api/auth')
 export class AuthController {
@@ -14,11 +16,20 @@ export class AuthController {
 
     @ApiOperation({ summary: 'Register the user' })
     @Post('register')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: cloudinaryStorage,
+        limits: {
+            fileSize: 5 * 1024 * 1024
+        }
+    }))
     async register(
         @Body() data: RegisterDto,
-        @Res({ passthrough: true }) response: Response
+        @Res({ passthrough: true }) response: Response,
+        @UploadedFile() file: Express.Multer.File
     ) {
-        const result = await this.authService.register(data)
+        const result = await this.authService.register({
+            ...data, imageUrl: file?.path, imagePublicId: file?.filename
+        })
         response.cookie('access_token', result?.access_token, cookie_options)
         return {
             data: result?.user,
