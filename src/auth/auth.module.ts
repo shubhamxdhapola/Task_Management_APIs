@@ -3,10 +3,12 @@ import { AuthService } from './auth.service.js';
 import { AuthController } from './auth.controller.js';
 import { JwtModule } from '@nestjs/jwt'
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RedisModule } from '../redis/redis.module.js';
 
 @Global()
 @Module({
   imports: [
+    RedisModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -18,8 +20,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       })
     })
   ],
-  providers: [AuthService ],
+  providers: [AuthService],
   controllers: [AuthController],
-  exports : [ JwtModule]
+  exports: [JwtModule]
 })
 export class AuthModule { }

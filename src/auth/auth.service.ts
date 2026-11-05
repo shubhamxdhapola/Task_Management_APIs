@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { RegisterDto } from './dto/register-dto/register-dto.js';
 import bcrypt from 'bcryptjs'
@@ -6,15 +6,13 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login-dto/login-dto.js';
 import { JwtPayload } from '../types/types.js';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { type Cache } from 'cache-manager';
+import { RedisService } from '../redis/redis.service.js';
 
 @Injectable()
 export class AuthService {
 
     constructor(
-        @Inject(CACHE_MANAGER)
-        private readonly cacheManager: Cache,
+        private readonly redisService: RedisService,
         private readonly prisma: PrismaService,
         private readonly jwtService: JwtService,
         private readonly eventEmitter: EventEmitter2,
@@ -51,7 +49,7 @@ export class AuthService {
                 createdAt: true,
             }
         })
-        await this.cacheManager.del('users:all')
+        await this.redisService.delete('users:all')
 
         this.eventEmitter.emit('user_registered', user?.name)
 

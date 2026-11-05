@@ -1,19 +1,17 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { type Cache } from 'cache-manager';
+import { RedisService } from '../redis/redis.service.js';
 
 @Injectable()
 export class AdminService {
 
     constructor(
-        @Inject(CACHE_MANAGER)
-        private readonly cacheManager: Cache,
+        private readonly redisService : RedisService,
         private readonly prisma: PrismaService,
     ) { }
 
     async getUsers() {
-        const cachedUsers = await this.cacheManager.get("users:all")
+        const cachedUsers = await this.redisService.get("users:all")
         if (cachedUsers !== null && cachedUsers !== undefined) {
             console.log("Cache hit")
             return cachedUsers
@@ -24,7 +22,7 @@ export class AdminService {
             where: { role: { not: 'ADMIN' } }
         });
 
-        await this.cacheManager.set(
+        await this.redisService.set(
             'users:all',
             users,
             600_000
@@ -33,7 +31,7 @@ export class AdminService {
     }
 
     async getTasks() {
-        const cachedTasks = await this.cacheManager.get("tasks:all")
+        const cachedTasks = await this.redisService.get("tasks:all")
         if (cachedTasks !== null && cachedTasks !== undefined) {
             console.log("Cache hit")
             return cachedTasks
@@ -42,7 +40,7 @@ export class AdminService {
 
         const tasks = await this.prisma.task.findMany();
 
-        await this.cacheManager.set(
+        await this.redisService.set(
             'tasks:all',
             tasks,
             600_000

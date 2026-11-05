@@ -9,6 +9,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UserRegisterListenerService } from './events/user-register-listener/user-register-listener.service.js'
 import { UploadsModule } from './uploads/uploads.module.js';
 import { CacheModule } from '@nestjs/cache-manager';
+import { RedisModule } from './redis/redis.module.js';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { CacheModule } from '@nestjs/cache-manager';
     AuthModule,
     AdminModule,
     TasksModule,
-    UploadsModule
+    UploadsModule,
+    RedisModule
   ],
   providers: [UserRegisterListenerService],
 })

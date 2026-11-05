@@ -1,16 +1,14 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task-dto/create-task-dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { UpdateTaskDto } from './dto/update-task-dto/update-task-dto.js';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { type Cache } from 'cache-manager';
+import { UpdateTaskDto } from './dto/update-task-dto/update-task-dto.js';;
+import { RedisService } from '../redis/redis.service.js';
 
 @Injectable()
 export class TasksService {
 
     constructor(
-        @Inject(CACHE_MANAGER)
-        private readonly cacheManager: Cache,
+        private readonly redisService: RedisService,
         private readonly prisma: PrismaService) { }
 
     async create(data: CreateTaskDto, id: string) {
@@ -28,7 +26,7 @@ export class TasksService {
                 userId: true
             }
         })
-        await this.cacheManager.del('tasks:all')
+        await this.redisService.delete('tasks:all')
 
         return {
             message: "Task created",
@@ -60,7 +58,8 @@ export class TasksService {
                 "Task not found or you are not authorized to update it"
             )
         }
-
+        await this.redisService.delete('tasks:all')
+        
         return {
             message: "Task updated",
             updatedTask
@@ -78,7 +77,7 @@ export class TasksService {
                 "Task not found or you are not authorized to delete it"
             )
         }
-
+        await this.redisService.delete('tasks:all')
         return { message: "Task deleted" }
     }
 
